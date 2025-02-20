@@ -1,0 +1,219 @@
+= Embedded Rhino Serialization Example
+
+This project demonstrates the differences in behavior between various Rhino versions,
+when serializing a continuation object against a scope that is not a top-level scope
+(that is, created using `context#initStandardObjects(...)`).
+
+Version 1.7.14::
+    `ReferenceError: "sout" is not defined. (ContinuationCode.js#12)`
+Version 1.7.15::
+    `java.io.NotSerializableException: java.lang.Object`
+Version 1.8.0::
+    `org.mozilla.javascript.EcmaError: TypeError: Method "forEach" called on incompatible object. (#1)`
+
+
+To switch between versions, change the link:pom.xml[pom.xml] file, and the 
+link:src/main/java/comgithub/michbarsinai/embeddedrhino/RhinoContextFactory.java[RhinoContextFactory]
+file to support the slightly different 1.8.0 api.
+
+Running from the commandline using Maven:
+
+[source, bash]
+----
+$ mvn clean compile exec:java
+----
+
+== Stack Traces
+
+
+=== 1.7.14
+
+[source]
+----
+org.mozilla.javascript.EcmaError: ReferenceError: "sout" is not defined. (ContinuationCode.js#12)
+	at org.mozilla.javascript.ScriptRuntime.constructError(ScriptRuntime.java:4563)
+	at org.mozilla.javascript.ScriptRuntime.constructError(ScriptRuntime.java:4544)
+	at org.mozilla.javascript.ScriptRuntime.notFoundError(ScriptRuntime.java:4632)
+	at org.mozilla.javascript.ScriptRuntime.nameOrFunction(ScriptRuntime.java:2019)
+	at org.mozilla.javascript.ScriptRuntime.name(ScriptRuntime.java:1957)
+	at org.mozilla.javascript.Interpreter.interpretLoop(Interpreter.java:1972)
+	at script.main(ContinuationCode.js:12)
+	at org.mozilla.javascript.Interpreter.restartContinuation(Interpreter.java:1107)
+	at org.mozilla.javascript.NativeContinuation.call(NativeContinuation.java:43)
+	at org.mozilla.javascript.ContextFactory.doTopCall(ContextFactory.java:380)
+	at org.mozilla.javascript.ScriptRuntime.doTopCall(ScriptRuntime.java:3868)
+	at org.mozilla.javascript.Interpreter.restartContinuation(Interpreter.java:1088)
+	at org.mozilla.javascript.Context.resumeContinuation(Context.java:1254)
+	at com.github.michbarsinai.embeddedrhino.EmbeddedRhino.withContinuation(EmbeddedRhino.java:100)
+	at com.github.michbarsinai.embeddedrhino.EmbeddedRhino.main(EmbeddedRhino.java:54)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doMain(ExecJavaMojo.java:375)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doExec(ExecJavaMojo.java:364)
+	at org.codehaus.mojo.exec.ExecJavaMojo.lambda$execute$0(ExecJavaMojo.java:286)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+----
+
+=== 1.7.15
+
+[source]
+----
+java.io.NotSerializableException: java.lang.Object
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1200)
+	at java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:358)
+	at java.base/java.util.HashMap.internalWriteEntries(HashMap.java:1951)
+	at java.base/java.util.HashMap.writeObject(HashMap.java:1505)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:1072)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1529)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.defaultWriteObject(ObjectOutputStream.java:451)
+	at org.mozilla.javascript.ScriptableObject.writeObject(ScriptableObject.java:2640)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:1072)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1529)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.defaultWriteObject(ObjectOutputStream.java:451)
+	at org.mozilla.javascript.ScriptableObject.writeObject(ScriptableObject.java:2640)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:1072)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1529)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:358)
+	at org.mozilla.javascript.ScriptableObject.writeObject(ScriptableObject.java:2649)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:1072)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1529)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:358)
+	at org.mozilla.javascript.ScriptableObject.writeObject(ScriptableObject.java:2649)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:1072)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1529)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:358)
+	at com.github.michbarsinai.embeddedrhino.bprogramio.ProgramIO.serialize(ProgramIO.java:26)
+	at com.github.michbarsinai.embeddedrhino.EmbeddedRhino.withContinuation(EmbeddedRhino.java:92)
+	at com.github.michbarsinai.embeddedrhino.EmbeddedRhino.main(EmbeddedRhino.java:54)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doMain(ExecJavaMojo.java:375)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doExec(ExecJavaMojo.java:364)
+	at org.codehaus.mojo.exec.ExecJavaMojo.lambda$execute$0(ExecJavaMojo.java:286)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+----
+
+=== 1.8.0
+
+[source]
+----
+org.mozilla.javascript.EcmaError: TypeError: Method "forEach" called on incompatible object. (#1)
+	at org.mozilla.javascript.ScriptRuntime.constructError(ScriptRuntime.java:5242)
+	at org.mozilla.javascript.ScriptRuntime.constructError(ScriptRuntime.java:5223)
+	at org.mozilla.javascript.ScriptRuntime.typeError(ScriptRuntime.java:5255)
+	at org.mozilla.javascript.ScriptRuntime.typeErrorById(ScriptRuntime.java:5260)
+	at org.mozilla.javascript.NativeSet.realThis(NativeSet.java:180)
+	at org.mozilla.javascript.NativeSet.execIdCall(NativeSet.java:75)
+	at org.mozilla.javascript.IdFunctionObject.call(IdFunctionObject.java:85)
+	at org.mozilla.javascript.Interpreter.doCallByteCode(Interpreter.java:3004)
+	at org.mozilla.javascript.Interpreter.interpretLoop(Interpreter.java:1970)
+	at script(:1)
+	at org.mozilla.javascript.Interpreter.interpret(Interpreter.java:1158)
+	at org.mozilla.javascript.InterpretedFunction.call(InterpretedFunction.java:87)
+	at org.mozilla.javascript.ContextFactory.doTopCall(ContextFactory.java:383)
+	at org.mozilla.javascript.ScriptRuntime.doTopCall(ScriptRuntime.java:4456)
+	at org.mozilla.javascript.InterpretedFunction.exec(InterpretedFunction.java:100)
+	at org.mozilla.javascript.Context.evaluateString(Context.java:1238)
+	at com.github.michbarsinai.embeddedrhino.bprogramio.JSStubOutputStream.stubify(JSStubOutputStream.java:89)
+	at com.github.michbarsinai.embeddedrhino.bprogramio.JSStubOutputStream.replaceObject(JSStubOutputStream.java:65)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1160)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:358)
+	at org.mozilla.javascript.ScriptableObject.writeObject(ScriptableObject.java:2906)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:1072)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1529)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.defaultWriteObject(ObjectOutputStream.java:451)
+	at org.mozilla.javascript.ScriptableObject.writeObject(ScriptableObject.java:2897)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:1072)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1529)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:358)
+	at org.mozilla.javascript.ScriptableObject.writeObject(ScriptableObject.java:2906)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:1072)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1529)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:358)
+	at org.mozilla.javascript.ScriptableObject.writeObject(ScriptableObject.java:2906)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:1072)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1529)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1585)
+	at java.base/java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1542)
+	at java.base/java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1451)
+	at java.base/java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1194)
+	at java.base/java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:358)
+	at com.github.michbarsinai.embeddedrhino.bprogramio.SyncSnapshotIO.serialize(SyncSnapshotIO.java:50)
+	at com.github.michbarsinai.embeddedrhino.EmbeddedRhino.withContinuation(EmbeddedRhino.java:91)
+	at com.github.michbarsinai.embeddedrhino.EmbeddedRhino.main(EmbeddedRhino.java:55)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doMain(ExecJavaMojo.java:375)
+	at org.codehaus.mojo.exec.ExecJavaMojo.doExec(ExecJavaMojo.java:364)
+	at org.codehaus.mojo.exec.ExecJavaMojo.lambda$execute$0(ExecJavaMojo.java:286)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+----

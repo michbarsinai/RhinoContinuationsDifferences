@@ -1,0 +1,11 @@
+com/github/michbarsinai/embeddedrhino/bprogramio/NativeSetStub.class
+com/github/michbarsinai/embeddedrhino/ContinuationCaptureer.class
+com/github/michbarsinai/embeddedrhino/BPjsWrapFactory.class
+com/github/michbarsinai/embeddedrhino/bprogramio/OptionalStub.class
+com/github/michbarsinai/embeddedrhino/bprogramio/ProgramIO.class
+com/github/michbarsinai/embeddedrhino/RhinoContextFactory.class
+com/github/michbarsinai/embeddedrhino/bprogramio/JSStubInputStream.class
+com/github/michbarsinai/embeddedrhino/bprogramio/StubProvider.class
+com/github/michbarsinai/embeddedrhino/EmbeddedRhino.class
+com/github/michbarsinai/embeddedrhino/bprogramio/JSStubOutputStream.class
+com/github/michbarsinai/embeddedrhino/bprogramio/StreamObjectStub.class
