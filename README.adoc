@@ -13,7 +13,7 @@ Version 1.8.0::
 
 
 To switch between versions, change the link:pom.xml[pom.xml] file, and the 
-link:src/main/java/comgithub/michbarsinai/embeddedrhino/RhinoContextFactory.java[RhinoContextFactory]
+link:src/main/java/com/github/michbarsinai/embeddedrhino/RhinoContextFactory.java[RhinoContextFactory]
 file to support the slightly different 1.8.0 api.
 
 Running from the commandline using Maven:
